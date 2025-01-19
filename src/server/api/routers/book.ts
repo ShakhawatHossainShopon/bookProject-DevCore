@@ -1,8 +1,25 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+// Define the structure of the response
+interface VolumeInfo {
+  title: string;
+  authors?: string[];
+  publishedDate?: string;
+  description?: string;
+  imageLinks?: {
+    thumbnail?: string;
+  };
+}
+
+interface GoogleBooksApiResponse {
+  items?: {
+    volumeInfo: VolumeInfo;
+  }[];
+}
+
+// Router definition
 export const bookRouter = createTRPCRouter({
-  // Query: Fetch metadata from Google Books API
   getBookMetadata: publicProcedure
     .input(z.object({ title: z.string() }))
     .query(async ({ input }) => {
@@ -12,26 +29,28 @@ export const bookRouter = createTRPCRouter({
       }
 
       const response = await fetch(
-        `https://www.googleapis.com/books/v1/volumes?q=${input.title}&key=${apiKey}`,
+        `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+          input.title
+        )}&key=${apiKey}`
       );
 
-      const data = await response.json();
+      const data: GoogleBooksApiResponse = await response.json(); // Explicitly type the response
       const book = data.items?.[0]?.volumeInfo;
 
       if (!book) {
         throw new Error("No book found with the given title");
       }
 
+      // Safely extract data with type checks
       return {
         title: book.title,
-        author: book.authors?.join(", ") || "Unknown",
-        publishedDate: book.publishedDate || "Unknown",
-        description: book.description || "No description available",
-        image: book.imageLinks?.thumbnail || "",
+        author: book.authors?.join(", "),
+        publishedDate: book.publishedDate,
+        description: book.description,
+        image: book.imageLinks?.thumbnail,
       };
     }),
 
-  // Mutation: Save book metadata to database
   saveBookMetadata: publicProcedure
     .input(
       z.object({
@@ -40,7 +59,7 @@ export const bookRouter = createTRPCRouter({
         publishedDate: z.string(),
         description: z.string(),
         image: z.string().optional(),
-      }),
+      })
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.book.create({
@@ -49,7 +68,7 @@ export const bookRouter = createTRPCRouter({
           author: input.author,
           publishedDate: input.publishedDate,
           description: input.description,
-          image: input.image,
+          image: input.image ?? "",
         },
       });
     }),
@@ -58,11 +77,10 @@ export const bookRouter = createTRPCRouter({
     return ctx.db.book.findMany();
   }),
 
-  // Mutation: Delete book by ID
   deleteBook: publicProcedure
     .input(
       z.object({
-        id: z.number(), // ID of the book to be deleted
+        id: z.number(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -70,5 +88,4 @@ export const bookRouter = createTRPCRouter({
         where: { id: input.id },
       });
     }),
-
 });

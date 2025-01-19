@@ -2,7 +2,6 @@ import Image from "next/image";
 
 // Define the type for book metadata
 interface BookMetadata {
-  id: string;
   title: string;
   author: string;
   publishedDate: string;

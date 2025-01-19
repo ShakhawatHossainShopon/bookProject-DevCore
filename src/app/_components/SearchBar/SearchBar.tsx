@@ -24,13 +24,18 @@ const useDebounce = (value: string, delay: number) => {
 
 const SearchBar = () => {
   const [query, setQuery] = useState("");
-  const [bookData, setBookData] = useState(null);
-  const [title, setBooktitle] = useState(null);
-  const [author, setBookauthor] = useState(null);
-  const [publishedDate, setBookpublishedDate] = useState(null);
-  const [description, setBookdescription] = useState(null);
-  const [image, setBookimage] = useState(null);
   const debouncedQuery = useDebounce(query, 500); // Debounce for 500ms
+
+  // Define the structure of your book data
+  interface BookData {
+    title: string;
+    author: string;
+    publishedDate: string;
+    description: string;
+    image: string; // image can be null if no image available
+  }
+
+  const [bookData, setBookData] = useState<BookData | null>(null);
 
   // Fetch book metadata using debounced query
   const { data, isLoading, error } = api.book.getBookMetadata.useQuery(
@@ -41,21 +46,31 @@ const SearchBar = () => {
   // Update book data when query changes
   useEffect(() => {
     if (data) {
-      setBookData(data);
-      setBooktitle(data.title);
-      setBookauthor(data.author);
-      setBookpublishedDate(data.publishedDate);
-      setBookdescription(data.description);
-      setBookimage(data.image);
+      setBookData({
+        title: data.title,
+        author: data.author ?? "Unknown",
+        publishedDate: data.publishedDate ?? "Unknown",
+        description: data.description ?? "No description available",
+        image: data.image ?? "", // Provide default value if image is null
+      });
     }
   }, [data]);
+
   const utils = api.useUtils();
   const Savebook = api.book?.saveBookMetadata.useMutation({
     onSuccess: async () => {
       await utils.book.invalidate();
     },
   });
+
   const handleSaveBook = async () => {
+    if (!bookData) {
+      console.error("No book data available to save.");
+      return;
+    }
+
+    const { title, author, publishedDate, description, image } = bookData;
+
     if (!title || !author || !publishedDate || !description) {
       console.error("All fields are required to save the book.");
       return;
@@ -67,7 +82,7 @@ const SearchBar = () => {
         author,
         publishedDate,
         description,
-        image: image || "", // Provide default value if image is null
+        image: image, // Provide default value if image is null
       });
       console.log("Book saved successfully!");
     } catch (error) {
@@ -78,7 +93,7 @@ const SearchBar = () => {
   return (
     <>
       <div className="mb-8 flex items-center w-full py-7 justify-center">
-        <label className="input input-bordered flex items-center gap-2 md:w-2/4">
+        <label className="input input-bordered flex items-center gap-2 w-2/4">
           <input
             type="text"
             className="grow"
