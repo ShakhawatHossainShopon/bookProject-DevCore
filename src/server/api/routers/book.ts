@@ -34,7 +34,10 @@ export const bookRouter = createTRPCRouter({
         )}&key=${apiKey}`
       );
 
-      const data: GoogleBooksApiResponse = await response.json(); // Explicitly type the response
+      /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+      // Your code here that you want to disable the rule for
+      const data: GoogleBooksApiResponse = await response.json();
+      /* eslint-enable @typescript-eslint/no-unsafe-assignment */
       const book = data.items?.[0]?.volumeInfo;
 
       if (!book) {
