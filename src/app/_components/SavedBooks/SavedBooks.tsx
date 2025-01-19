@@ -18,7 +18,7 @@ const SavedBooks = () => {
     },
   });
 
-  const handleDeleteBook = (id) => {
+  const handleDeleteBook = (id: number) => {
     deleteBook.mutate({ id });
   };
 
@@ -40,13 +40,16 @@ const SavedBooks = () => {
                   <p className="text-sm text-gray-600">{book.author}</p>
                   <p className="text-sm text-gray-600">{book.publishedDate}</p>
                   <div className="card-actions justify-end">
-                    <button className="btn btn-outline btn-error">
+                    <button
+                      className="btn btn-outline btn-error"
+                      onClick={() => handleDeleteBook(book.id)}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
-                        class="w-6 h-6"
+                        className="w-6 h-6"
                       >
                         <path
                           stroke-linecap="round"
