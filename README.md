@@ -19,10 +19,10 @@ Setup Instructions
 
 Environnment Variable is pushed along with Google API key And Database URL
 
-git clone [repository-link]
-cd [project-directory]
-npm install
-npm run db:push
-npm run dev
+git clone [repository-link] <br/>
+cd [project-directory] <br/>
+npm install <br/>
+npm run db:push <br/>
+npm run dev <br/>
 
 Visit http://localhost:3000 in your browser.
