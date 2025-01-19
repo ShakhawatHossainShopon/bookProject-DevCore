@@ -43,7 +43,7 @@ export const bookRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return ctx.prisma.book.create({
+      return ctx.db.book.create({
         data: {
           title: input.title,
           author: input.author,
@@ -53,4 +53,22 @@ export const bookRouter = createTRPCRouter({
         },
       });
     }),
+
+  getAllSavedBooks: publicProcedure.query(async ({ ctx }) => {
+    return ctx.db.book.findMany();
+  }),
+
+  // Mutation: Delete book by ID
+  deleteBook: publicProcedure
+    .input(
+      z.object({
+        id: z.number(), // ID of the book to be deleted
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.book.delete({
+        where: { id: input.id },
+      });
+    }),
+
 });

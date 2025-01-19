@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* For multi-line truncation */
+.truncate-text-multiline {
+    display: -webkit-box;
+    -webkit-line-clamp: 1 ; /* Number of lines to show */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

@@ -5,6 +5,10 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  images: {
+    domains: ["books.google.com"], // Add the domain of your external images here
+  },
+};
 
 export default config;
