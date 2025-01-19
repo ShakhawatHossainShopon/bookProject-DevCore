@@ -19,7 +19,6 @@ const BookCard: React.FC<BookCardProps> = ({ res, onSave }) => {
   // Fallbacks if data is missing
   const fallbackImage = "/default-book-image.jpg"; // Ensure this file exists in the 'public' folder
   const imageUrl = res?.image || fallbackImage;
-  const description = res?.description || "No description available";
 
   return (
     <>
